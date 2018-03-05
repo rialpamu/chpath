@@ -18,14 +18,16 @@ var pathSeparator = string([]byte{os.PathListSeparator})
 
 // command line options
 var (
-	path          string
-	verbose, help bool
+	path                        string
+	verbose, help, keepsymlinks bool
 )
 
 func init() {
 	flag.StringVar(&path, "path", "", "path to use instead of PATH from environment")
 	flag.BoolVar(&verbose, "verbose", false, "verbose output: print warnings to stderr")
 	flag.BoolVar(&verbose, "v", false, "alias for verbose")
+	flag.BoolVar(&keepsymlinks, "keepsymlinks", false,
+		"do not evaluate (dereference) symbolic links")
 	flag.BoolVar(&help, "help", false, "print usage and exit")
 }
 
@@ -47,12 +49,19 @@ func joinPath(parts []string) string {
 	return strings.Join(parts, pathSeparator)
 }
 
+func cleanFilepath(p string) (string, error) {
+	if keepsymlinks {
+		return filepath.Clean(p), nil
+	}
+	return filepath.EvalSymlinks(p)
+}
+
 func canonicalFilepath(p string) (string, error) {
-	s, err := filepath.EvalSymlinks(p)
+	p0, err := cleanFilepath(p)
 	if err != nil {
 		return "", err
 	}
-	return filepath.Abs(s)
+	return filepath.Abs(p0)
 }
 
 func verifyDir(d string) error {
@@ -71,21 +80,21 @@ func cleanPath(path string) string {
 	var newpath []string
 	seen := make(map[string]void)
 	for _, part := range parts {
-		name, err := canonicalFilepath(part)
+		canon, err := canonicalFilepath(part)
 		if err != nil {
 			warn("invalid file path %s: %v", part, err)
 			continue
 		}
-		if _, ok := seen[name]; ok {
-			warn("%s multiple defined", part)
+		if _, ok := seen[canon]; ok {
+			warn("%s multiple defined", canon)
 			continue
 		}
-		seen[name] = void{}
-		if err := verifyDir(part); err != nil {
+		seen[canon] = void{}
+		if err := verifyDir(canon); err != nil {
 			warn("%v", err)
 			continue
 		}
-		newpath = append(newpath, part)
+		newpath = append(newpath, canon)
 	}
 	return joinPath(newpath)
 }
