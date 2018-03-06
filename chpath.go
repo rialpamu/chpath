@@ -12,8 +12,6 @@ import (
 	"strings"
 )
 
-type void struct{}
-
 var pathSeparator = string([]byte{os.PathListSeparator})
 
 // command line options
@@ -64,34 +62,36 @@ func canonicalFilepath(p string) (string, error) {
 	return filepath.Abs(p0)
 }
 
-func verifyDir(d string) error {
-	fi, err := os.Stat(d)
-	if err != nil {
-		return err
-	}
-	if !fi.Mode().IsDir() {
-		return fmt.Errorf("%s is not a directory", d)
-	}
-	return nil
-}
-
 func cleanPath(path string) string {
+	var fis []os.FileInfo
+	haveFile := func(undertest os.FileInfo) bool {
+		for _, fi := range fis {
+			if os.SameFile(fi, undertest) {
+				return true
+			}
+		}
+		return false
+	}
 	parts := splitPath(path)
 	var newpath []string
-	seen := make(map[string]void)
 	for _, part := range parts {
 		canon, err := canonicalFilepath(part)
 		if err != nil {
-			warn("invalid file path %s: %v", part, err)
+			warn("invalid file path \"%s\": %v", part, err)
 			continue
 		}
-		if _, ok := seen[canon]; ok {
-			warn("%s multiple defined", canon)
+		fi, err := os.Stat(canon)
+		if err != nil {
+			warn("not found \"%s\": %v", canon, err)
 			continue
 		}
-		seen[canon] = void{}
-		if err := verifyDir(canon); err != nil {
-			warn("%v", err)
+		if haveFile(fi) {
+			warn("\"%s\" multiple defined", canon)
+			continue
+		}
+		fis = append(fis, fi)
+		if !fi.Mode().IsDir() {
+			warn("\"%s\" is not a directory", canon)
 			continue
 		}
 		newpath = append(newpath, canon)
