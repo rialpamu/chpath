@@ -14,8 +14,8 @@ Called without arguments it will clean the PATH
 Will not actually modify the PATH environment variable,
 but write the modified PATH variable to stdout.
 
-Tested under OpenBSD 6.2, Linux (Ubuntu 16.04) and Windows 7.
-Built with go1.10.
+Tested under OpenBSD 6.3, Linux (Ubuntu 18.04) and Windows 7.
+Built with go1.11.
 
 I find it useful for Windows commandline, where my PATH variable
 has the tendency to grow unrestrained.
