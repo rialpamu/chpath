@@ -77,21 +77,21 @@ func cleanPath(path string) string {
 	for _, part := range parts {
 		canon, err := canonicalFilepath(part)
 		if err != nil {
-			warn("invalid file path \"%s\": %v", part, err)
+			warn("invalid file path %q: %v", part, err)
 			continue
 		}
 		fi, err := os.Stat(canon)
 		if err != nil {
-			warn("not found \"%s\": %v", canon, err)
+			warn("not found %q: %v", canon, err)
 			continue
 		}
 		if haveFile(fi) {
-			warn("\"%s\" multiple defined", canon)
+			warn("%q multiple defined", canon)
 			continue
 		}
 		fis = append(fis, fi)
 		if !fi.Mode().IsDir() {
-			warn("\"%s\" is not a directory", canon)
+			warn("%q is not a directory", canon)
 			continue
 		}
 		newpath = append(newpath, canon)
