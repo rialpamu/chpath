@@ -17,7 +17,7 @@ but write the modified PATH variable to stdout.
 Tested under OpenBSD 7.0, Linux (Ubuntu 20.04) and Windows 10. \
 Built with go1.17.
 
-I find it useful for Windows commandline, where my PATH variable
+I find it useful on the Windows commandline, where my PATH variable
 has the tendency to grow unrestrained.
 
 
@@ -35,4 +35,8 @@ Windows CMD:
 ksh or bash:
 
     export PATH=$(chpath ~/bin ~/other/bin)
+
+## Install
+
+    go install github.com/rialpamu/chpath@latest
 
