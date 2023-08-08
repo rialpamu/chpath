@@ -4,6 +4,7 @@
 
 // for all OS but Windows
 
+//go:build !windows
 // +build !windows
 
 package main

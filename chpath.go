@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -99,19 +100,11 @@ func cleanPath(path string) string {
 	return joinPath(newpath)
 }
 
-func reverse(in []string) (out []string) {
-	for i := len(in) - 1; i >= 0; i-- {
-		out = append(out, in[i])
-	}
-	return
-}
-
 func prependPath(path string, args []string) {
 	if len(args) > 0 {
-		parts := reverse(splitPath(path))
-		parts = append(parts, reverse(args)...)
-		parts = reverse(parts)
-		path = joinPath(parts)
+		parts := splitPath(path)
+		newparts := append(slices.Clone(args), parts...)
+		path = joinPath(newparts)
 	}
 	newpath := cleanPath(path)
 	writePath(newpath)
