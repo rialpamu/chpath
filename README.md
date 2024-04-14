@@ -15,7 +15,7 @@ Will not actually modify the PATH environment variable,
 but write the modified PATH variable to stdout.
 
 Tested under OpenBSD 7.2, Linux (Ubuntu 22.04) and Windows 10. \
-Built with go1.20.
+
 
 ## Example Usage
 
